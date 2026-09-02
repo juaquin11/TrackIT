@@ -3,6 +3,10 @@
 .env.local
 *.env
 
+# Agent customizations & local skills
+.agents/
+skills-lock.json
+
 # Node modules / Dependencies
 node_modules/
 backend/node_modules/
