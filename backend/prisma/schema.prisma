@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Entidad Perfil de Usuario
+model User {
+  id              Int    @id @default(autoincrement())
+  pesoKg          Float
+  alturaCm        Float
+  edad            Int
+  factorActividad Float
+  objetivo        String // Volumen, Definicion, Mantenimiento, Recomposicion
+}
+
+// Catálogo de Alimentos
+model Food {
+  id            Int            @id @default(autoincrement())
+  nombre        String
+  porcionBase   Float          @default(100)
+  calorias      Float
+  proteinas     Float
+  carbohidratos Float
+  grasas        Float
+  tags          Tag[]          // Relación muchos a muchos con Etiquetas
+  consumptions  ConsumedFood[] // Relación uno a muchos con los consumos
+}
+
+// Etiquetas para el algoritmo (ej: "fuente_proteina")
+model Tag {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  foods Food[]
+}
+
+// Historial Diario
+model DailyRecord {
+  id     Int            @id @default(autoincrement())
+  fecha  DateTime       @unique @db.Date
+  foods  ConsumedFood[]
+}
+
+// Tabla intermedia: Qué alimento comiste y cuánto en un día específico
+model ConsumedFood {
+  id          Int         @id @default(autoincrement())
+  gramos      Float
+  foodId      Int
+  recordId    Int
+  food        Food        @relation(fields: [foodId], references: [id])
+  dailyRecord DailyRecord @relation(fields: [recordId], references: [id])
+}
