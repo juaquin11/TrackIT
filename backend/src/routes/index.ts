@@ -1,13 +1,13 @@
 import { Router } from 'express';
+import foodRoutes from './food.routes';
+import userRoutes from './user.routes';
 
 const router = Router();
 
-// Ejemplo de endpoint base para Alimentos
-router.get('/foods', (req, res) => {
-  res.json({ success: true, data: [] });
-});
+router.use('/foods', foodRoutes);
+router.use('/users', userRoutes);
 
-// Ejemplo de endpoint base para Historial Diario
+// Ejemplo de endpoint base para Historial Diario (pendiente)
 router.get('/daily-logs', (req, res) => {
   res.json({ success: true, data: [] });
 });

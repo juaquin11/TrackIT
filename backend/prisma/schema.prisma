@@ -13,6 +13,7 @@ model User {
   pesoKg          Float
   alturaCm        Float
   edad            Int
+  genero          String @default("M") // "M" o "F"
   factorActividad Float
   objetivo        String // Volumen, Definicion, Mantenimiento, Recomposicion
 }
