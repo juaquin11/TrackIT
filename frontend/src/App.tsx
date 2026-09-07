@@ -1,46 +1,81 @@
 import React from 'react';
+import { useDashboardData } from './hooks/useDashboardData';
+import { DailySummary } from './components/DailySummary';
+import { SavedMealsList } from './components/SavedMealsList';
+import { Bell, Activity, LayoutTemplate, BookOpen, TrendingUp, MoreHorizontal } from 'lucide-react';
 import './index.css';
 
 const App: React.FC = () => {
+  const { targets, consumed, loading, error, addConsumed } = useDashboardData();
+
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('es-AR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'short',
+  });
+
   return (
     <div className="app-container">
-      {/* Header temporal */}
-      <header style={{ padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ color: 'var(--accent-neon)' }}>T</span>TrackIT
-        </h1>
-        <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--bg-tertiary)' }} />
+      {/* Header */}
+      <header className="app-header">
+        <div className="profile-pic">
+          <img src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="Profile" />
+        </div>
+        <div className="logo">
+          <span className="accent">Track</span>IT
+        </div>
+        <div className="bell-icon-wrapper">
+          <Bell size={20} color="var(--text-secondary)" />
+          <div className="bell-dot"></div>
+        </div>
       </header>
 
-      {/* Main Content Area */}
-      <main style={{ padding: '0 24px 100px 24px' }}>
-        <h2 style={{ marginBottom: '4px' }}>Welcome Back!</h2>
-        <p style={{ marginBottom: '24px' }}>Monday, Oct 28</p>
-        
-        {/* Prueba del Glassmorphism */}
-        <div className="glass-panel" style={{ padding: '24px', marginBottom: '24px' }}>
-          <h3 style={{ marginBottom: '16px' }}>Configuración Inicial Lista</h3>
-          <p>El sistema de diseño con glassmorphism y modo oscuro está funcionando correctamente.</p>
+      {/* Greeting */}
+      <div className="greeting-section">
+        <h1 className="greeting-title">¡Bienvenido de vuelta, Alex!</h1>
+        <div className="greeting-date">{dateStr}</div>
+      </div>
+
+      {/* Main Content */}
+      <main className="main-content">
+        {error && (
+          <div className="card" style={{ borderColor: 'var(--color-carbs)', marginBottom: '16px' }}>
+            <p style={{ color: 'var(--color-carbs)', fontSize: '0.85rem' }}>
+              ⚠ {error}
+            </p>
+          </div>
+        )}
+
+        <DailySummary targets={targets} consumed={consumed} loading={loading} />
+
+        <div style={{ marginTop: '24px' }}>
+          <SavedMealsList onMealApplied={addConsumed} />
         </div>
       </main>
 
-      {/* Bottom Navigation Placeholder */}
-      <nav className="glass-panel" style={{ 
-        position: 'fixed', 
-        bottom: '24px', 
-        left: '50%', 
-        transform: 'translateX(-50%)',
-        width: 'calc(100% - 48px)',
-        maxWidth: '432px',
-        padding: '16px',
-        display: 'flex',
-        justifyContent: 'space-around',
-        borderRadius: 'var(--border-radius-lg)',
-        zIndex: 100
-      }}>
-        <div style={{ color: 'var(--accent-neon)' }}>Dashboard</div>
-        <div style={{ color: 'var(--text-secondary)' }}>Planner</div>
-        <div style={{ color: 'var(--text-secondary)' }}>Profile</div>
+      {/* Bottom Navigation */}
+      <nav className="bottom-nav">
+        <div className="nav-item active">
+          <LayoutTemplate size={24} />
+          <span>Inicio</span>
+        </div>
+        <div className="nav-item">
+          <BookOpen size={24} />
+          <span>Diario</span>
+        </div>
+        <div className="nav-item">
+          <Activity size={24} />
+          <span>Comidas</span>
+        </div>
+        <div className="nav-item">
+          <TrendingUp size={24} />
+          <span>Progreso</span>
+        </div>
+        <div className="nav-item">
+          <MoreHorizontal size={24} />
+          <span>Más</span>
+        </div>
       </nav>
     </div>
   );

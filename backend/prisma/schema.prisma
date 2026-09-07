@@ -20,15 +20,16 @@ model User {
 
 // Catálogo de Alimentos
 model Food {
-  id            Int            @id @default(autoincrement())
-  nombre        String
-  porcionBase   Float          @default(100)
-  calorias      Float
-  proteinas     Float
-  carbohidratos Float
-  grasas        Float
-  tags          Tag[]          // Relación muchos a muchos con Etiquetas
-  consumptions  ConsumedFood[] // Relación uno a muchos con los consumos
+  id             Int             @id @default(autoincrement())
+  nombre         String
+  porcionBase    Float           @default(100)
+  calorias       Float
+  proteinas      Float
+  carbohidratos  Float
+  grasas         Float
+  tags           Tag[]           // Relación muchos a muchos con Etiquetas
+  consumptions   ConsumedFood[]  // Relación uno a muchos con los consumos
+  savedMealItems SavedMealItem[] // Relación inversa con ingredientes de platos guardados
 }
 
 // Etiquetas para el algoritmo (ej: "fuente_proteina")
@@ -54,3 +55,23 @@ model ConsumedFood {
   food        Food        @relation(fields: [foodId], references: [id])
   dailyRecord DailyRecord @relation(fields: [recordId], references: [id])
 }
+
+// Plato/Receta guardada por el usuario
+model SavedMeal {
+  id        Int             @id @default(autoincrement())
+  nombre    String          // "Desayuno habitual", "Post-entreno rápido"
+  categoria String          // "Desayuno", "Almuerzo", "Merienda", "Cena", "Pre-entreno", "Post-entreno"
+  items     SavedMealItem[]
+  createdAt DateTime        @default(now())
+}
+
+// Ingrediente dentro de un plato guardado
+model SavedMealItem {
+  id          Int       @id @default(autoincrement())
+  gramos      Float
+  foodId      Int
+  savedMealId Int
+  food        Food      @relation(fields: [foodId], references: [id])
+  savedMeal   SavedMeal @relation(fields: [savedMealId], references: [id], onDelete: Cascade)
+}
+

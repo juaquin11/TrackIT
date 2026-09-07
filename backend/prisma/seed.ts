@@ -6,6 +6,8 @@ async function main() {
   console.log('Iniciando el proceso de Seed...');
 
   // Limpiar la base de datos (orden de eliminación para evitar errores de claves foráneas)
+  await prisma.savedMealItem.deleteMany();
+  await prisma.savedMeal.deleteMany();
   await prisma.consumedFood.deleteMany();
   await prisma.dailyRecord.deleteMany();
   await prisma.food.deleteMany();
@@ -83,8 +85,10 @@ async function main() {
     }
   ];
 
+  const createdFoods = [];
   for (const food of foodsToCreate) {
-    await prisma.food.create({ data: food });
+    const created = await prisma.food.create({ data: food });
+    createdFoods.push(created);
   }
 
   // 3. Crear Usuario Base
@@ -98,6 +102,54 @@ async function main() {
       factorActividad: 1.55, // Moderadamente activo
       objetivo: 'Recomposicion',
     },
+  });
+
+  // 4. Crear Platos Guardados de Ejemplo
+  console.log('Creando platos guardados de ejemplo...');
+  const pollo = createdFoods[0]; // Pechuga de pollo
+  const arroz = createdFoods[1]; // Arroz blanco
+  const huevo = createdFoods[2]; // Huevo entero
+  const avena = createdFoods[3]; // Avena
+  const aceite = createdFoods[4]; // Aceite de oliva
+
+  await prisma.savedMeal.create({
+    data: {
+      nombre: 'Desayuno clásico',
+      categoria: 'Desayuno',
+      items: {
+        create: [
+          { gramos: 80, foodId: avena.id },
+          { gramos: 100, foodId: huevo.id }, // 2 huevos aprox
+        ]
+      }
+    }
+  });
+
+  await prisma.savedMeal.create({
+    data: {
+      nombre: 'Almuerzo fitness',
+      categoria: 'Almuerzo',
+      items: {
+        create: [
+          { gramos: 200, foodId: pollo.id },
+          { gramos: 150, foodId: arroz.id },
+          { gramos: 10, foodId: aceite.id },
+        ]
+      }
+    }
+  });
+
+  await prisma.savedMeal.create({
+    data: {
+      nombre: 'Post-entreno rápido',
+      categoria: 'Post-entreno',
+      items: {
+        create: [
+          { gramos: 150, foodId: pollo.id },
+          { gramos: 100, foodId: arroz.id },
+        ]
+      }
+    }
   });
 
   console.log('Seed completado con éxito! 🌱');
