@@ -6,7 +6,7 @@ import { Bell, Activity, LayoutTemplate, BookOpen, TrendingUp, MoreHorizontal } 
 import './index.css';
 
 const App: React.FC = () => {
-  const { targets, consumed, loading, error, addConsumed } = useDashboardData();
+  const { user, targets, consumed, loading, error, addConsumed } = useDashboardData();
 
   const today = new Date();
   const dateStr = today.toLocaleDateString('es-AR', {
@@ -50,7 +50,7 @@ const App: React.FC = () => {
         <DailySummary targets={targets} consumed={consumed} loading={loading} />
 
         <div style={{ marginTop: '24px' }}>
-          <SavedMealsList onMealApplied={addConsumed} />
+          <SavedMealsList onMealApplied={addConsumed} userId={user?.id} />
         </div>
       </main>
 

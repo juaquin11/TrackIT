@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Check } from 'lucide-react';
+import { Check, CalendarPlus } from 'lucide-react';
 import { fetchSavedMeals, applySavedMeal } from '../services/api';
+import { MealPlanWizard } from './MealPlanWizard';
 
 interface SavedMealItem {
   id: number;
@@ -18,14 +19,16 @@ interface SavedMeal {
 
 interface SavedMealsListProps {
   onMealApplied: (macros: { calorias: number; proteinas: number; carbohidratos: number; grasas: number }) => void;
+  userId?: number;
 }
 
-export const SavedMealsList: React.FC<SavedMealsListProps> = ({ onMealApplied }) => {
+export const SavedMealsList: React.FC<SavedMealsListProps> = ({ onMealApplied, userId }) => {
   const [meals, setMeals] = useState<SavedMeal[]>([]);
   const [loading, setLoading] = useState(true);
   const [applyingId, setApplyingId] = useState<number | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [appliedIds, setAppliedIds] = useState<Set<number>>(new Set());
+  const [showWizard, setShowWizard] = useState(false);
 
   useEffect(() => {
     loadMeals();
@@ -64,6 +67,14 @@ export const SavedMealsList: React.FC<SavedMealsListProps> = ({ onMealApplied })
     }
   };
 
+  const handlePlanCreated = (plan: string[]) => {
+    setShowWizard(false);
+    // TODO: Enviar al backend cuando esté listo
+    console.log('Plan creado para el backend:', plan);
+    setToast(`Plan creado con ${plan.length} comidas ✓`);
+    setTimeout(() => setToast(null), 2500);
+  };
+
   const calcItemCals = (item: SavedMealItem) => {
     const ratio = item.gramos / item.food.porcionBase;
     return Math.round(item.food.calorias * ratio);
@@ -72,6 +83,12 @@ export const SavedMealsList: React.FC<SavedMealsListProps> = ({ onMealApplied })
   if (loading) {
     return (
       <div className="section-container">
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
+          <button className="btn-subtle" disabled>
+            <CalendarPlus size={14} />
+            Crear plan del día
+          </button>
+        </div>
         <div className="section-header-row">
           <h2 className="section-title">Mis Platos</h2>
           <span className="section-date-right">Hoy</span>
@@ -89,6 +106,14 @@ export const SavedMealsList: React.FC<SavedMealsListProps> = ({ onMealApplied })
 
   return (
     <div className="section-container">
+      {/* Botón sutil arriba del título */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
+        <button className="btn-subtle" onClick={() => setShowWizard(true)}>
+          <CalendarPlus size={14} />
+          Crear plan del día
+        </button>
+      </div>
+
       <div className="section-header-row">
         <h2 className="section-title">Mis Platos</h2>
         <span className="section-date-right">Hoy</span>
@@ -104,7 +129,6 @@ export const SavedMealsList: React.FC<SavedMealsListProps> = ({ onMealApplied })
               onClick={() => !isApplied && handleApply(meal)}
               style={{ cursor: isApplied ? 'default' : 'pointer' }}
             >
-              {/* Header: Breakfast / Time / Check */}
               <div className="meal-card-top">
                 <span className="meal-card-cat">{meal.categoria}</span>
                 <div className="meal-card-time-wrapper">
@@ -113,13 +137,11 @@ export const SavedMealsList: React.FC<SavedMealsListProps> = ({ onMealApplied })
                 </div>
               </div>
 
-              {/* Title & Summary */}
               <div className="meal-card-title">{meal.nombre}</div>
               <div className="meal-card-summary">
                 {meal.totales.calorias} kcal | P: {meal.totales.proteinas}g C: {meal.totales.carbohidratos}g G: {meal.totales.grasas}g
               </div>
 
-              {/* Ingredients List */}
               <div className="meal-ingredients-title">Ingredientes</div>
               <div className="meal-ingredients-list">
                 {meal.items.map((item: any) => (
@@ -133,7 +155,6 @@ export const SavedMealsList: React.FC<SavedMealsListProps> = ({ onMealApplied })
                 ))}
               </div>
               
-              {/* Overlay loading state */}
               {applyingId === meal.id && (
                 <div className="meal-card-overlay">
                   Registrando...
@@ -145,6 +166,14 @@ export const SavedMealsList: React.FC<SavedMealsListProps> = ({ onMealApplied })
       </div>
 
       {toast && <div className="toast">{toast}</div>}
+      
+      {showWizard && (
+        <MealPlanWizard 
+          onClose={() => setShowWizard(false)}
+          onPlanApplied={handlePlanCreated}
+          userId={userId || 1}
+        />
+      )}
     </div>
   );
 };

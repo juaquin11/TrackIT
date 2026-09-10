@@ -46,3 +46,12 @@ export async function fetchFoods() {
   const json = await request('/foods');
   return json.data;
 }
+
+// Generar un plan heurístico en base a las comidas solicitadas
+export const generateDailyPlan = async (userId: number, meals: string[]) => {
+  const json = await request('/planner/generate', {
+    method: 'POST',
+    body: JSON.stringify({ userId, meals })
+  });
+  return json.data; // { targets, plan: MealPlan[] }
+};
